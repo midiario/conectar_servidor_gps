@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Ubicación</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 400px; }
+    </style>
+</head>
+<body>
+    <h2>Ubicación del Dispositivo</h2>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Inicializar el mapa con las coordenadas de Miraflores, La Paz
+        var map = L.map('map').setView([-16.4991, -68.123], 13);
+
+        // Añadir capa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Función para obtener la ubicación
+        async function obtenerUbicacion() {
+            const response = await fetch('http://localhost/gpsEsp32.php'); // Archivo PHP configurado
+            const data = await response.json();
+
+            if (data.latitud && data.longitud) {
+                // Centrar el mapa en la ubicación obtenida
+                map.setView([data.latitud, data.longitud], 13);
+
+                // Añadir un marcador en la ubicación
+                L.marker([data.latitud, data.longitud]).addTo(map)
+                    .bindPopup(`Latitud: ${data.latitud}, Longitud: ${data.longitud}`)
+                    .openPopup();
+            } else {
+                console.error("No se pudieron obtener las coordenadas");
+            }
+        }
+
+        // Llamar a la función al cargar la página
+        obtenerUbicacion();
+    </script>
+</body>
+</html>
